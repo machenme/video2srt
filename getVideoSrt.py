@@ -106,7 +106,7 @@ def main():
         results = model.transcribe(audio_name, word_timestamps=True)
     else:
 
-        print("请提供文件名。使用 -n 或 --filename 参数。")
+        print("Error. type -h for help")
 
     srts = []
     progress_bar_width = 80
