@@ -41,8 +41,8 @@ def baidu_translate(ori_text):
 
 
 def get_need(segment):
-    start = change_time(segment["start"])
-    end = change_time(segment["end"])
+    start = change_time(float(segment["start"] + start_early_time))
+    end = change_time(float(segment["end"]) + end_late_time)
     time_line = f"{start} --> {end}"
     ori_text = str(segment["text"]).strip()
 
@@ -99,7 +99,10 @@ def main():
 
     model = whisper.load_model(args.model_name)
     if args.filename:
-        audio_name = video2audio(args.filename)
+        if str(args.filename).endswith("mp3"):
+            audio_name = args.filename
+        else:
+            audio_name = video2audio(args.filename)
         results = model.transcribe(audio_name, word_timestamps=True)
     else:
 
@@ -121,6 +124,10 @@ def main():
 
 if __name__ == "__main__":
     
+    # from_lang = "en"
+    # to_lang = "zh"
+    # model_name = "base.en"
+
     parser = argparse.ArgumentParser(description="获取视频字幕.")
 
     parser.add_argument("filename", type=str, help="文件路径")
@@ -157,11 +164,10 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # get baidu translate api from https://api.fanyi.baidu.com/manage/developer
-    appid = "xxxxxxxxxxxxx"
-    appkey = "***************"
-
-    # from_lang = "en"
-    # to_lang = "zh"
-    # model_name = "base.en"
+    # GET baidu API from https://api.fanyi.baidu.com/manage/developer
+    appid = "XXXXXXXXXXXXXXXXX"
+    appkey = "**************"
+    start_early_time = 0
+    end_late_time = 0.2
+    
     main()
