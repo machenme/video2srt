@@ -2,7 +2,6 @@ import argparse
 import whisper
 import requests
 import random
-import json
 import time
 import tqdm
 from hashlib import md5
@@ -13,21 +12,21 @@ def make_md5(s, encoding="utf-8"):
     return md5(s.encode(encoding)).hexdigest()
 
 
-def baidu_translate(eng_text):
+def baidu_translate(ori_text):
 
     endpoint = "http://api.fanyi.baidu.com"
     path = "/api/trans/vip/translate"
     url = endpoint + path
     salt = random.randint(1, 65536)
-    sign = make_md5(appid + eng_text + str(salt) + appkey)
+    sign = make_md5(appid + ori_text + str(salt) + appkey)
 
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
 
     payload = {
         "appid": appid,
-        "q": eng_text,
-        "from": from_lang,
-        "to": to_lang,
+        "q": ori_text,
+        "from": args.from_lang,
+        "to": args.to_lang,
         "salt": salt,
         "sign": sign,
     }
@@ -45,9 +44,19 @@ def get_need(segment):
     start = change_time(segment["start"])
     end = change_time(segment["end"])
     time_line = f"{start} --> {end}"
-    eng_text = str(segment["text"]).strip()
-    chs_text = baidu_translate(eng_text)["trans_result"][0]["dst"]
-    return f"{time_line}\n{eng_text}\n{chs_text}\n"
+    ori_text = str(segment["text"]).strip()
+
+    # 单语字幕
+    if args.srt_type == args.from_lang:
+        return f"{time_line}\n{ori_text}\n"
+    else:
+        trans_text = baidu_translate(ori_text)["trans_result"][0]["dst"]
+        if args.srt_type == args.to_lang:
+            return f"{time_line}\n{trans_text}\n"
+        elif args.srt_type == f"{args.from_lang}-{args.to_lang}":
+            return f"{time_line}\n{ori_text}\n{trans_text}\n"
+        else:
+            return f"{time_line}\n{trans_text}\n{ori_text}\n"
 
 
 def change_time(time):
@@ -86,9 +95,9 @@ def save2file(srts, filename):
         print("faild to write to txt")
 
 
-def main(args):
+def main():
 
-    model = whisper.load_model("base.en")
+    model = whisper.load_model(args.model_name)
     if args.filename:
         audio_name = video2audio(args.filename)
         results = model.transcribe(audio_name, word_timestamps=True)
@@ -111,30 +120,48 @@ def main(args):
 
 
 if __name__ == "__main__":
-
-    appid = "填写你的百度翻译appid"
-    appkey = "填写你的百度翻译appkey"
-
-    from_lang = "en"
-    to_lang = "zh"
-
+    
     parser = argparse.ArgumentParser(description="获取视频字幕.")
+
     parser.add_argument("filename", type=str, help="文件路径")
+
     parser.add_argument(
-        "from_lang",
+        "model_name",
+        type=str,
+        default="base.en",
+        nargs="?",
+        help="whisper模型选择 (default: base.en), whisper model select 参考信息 https://github.com/openai/whisper ",
+    )
+    parser.add_argument(
+        dest="from_lang",
         type=str,
         default="en",
         nargs="?",
         help="视频原始语言 (default: en)",
     )
     parser.add_argument(
-        "to_lang",
+        dest="to_lang",
         type=str,
         default="zh",
         nargs="?",
         help="双语字幕第二语言 (default: zh)",
     )
 
+    parser.add_argument(
+        dest="srt_type",
+        type=str,
+        default="en-zh",
+        nargs="?",
+        help="字幕类型，单中？单英？中英？英中？(default: en-zh)Subtitle type, single Chinese? single English? zh-en? en-zh?",
+    )
+
     args = parser.parse_args()
 
+    # get baidu translate api from https://api.fanyi.baidu.com/manage/developer
+    appid = "xxxxxxxxxxxxx"
+    appkey = "***************"
+
+    # from_lang = "en"
+    # to_lang = "zh"
+    # model_name = "base.en"
     main()
