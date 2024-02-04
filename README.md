@@ -49,11 +49,11 @@ positional arguments:
 options:
   -h, --help  show this help message and exit
 ```
-你可以 更改下面两个python变量 控制每一句字幕的提前出现时间和延后消失时间，默认延迟消失0.3秒  
-You can change the following two python variables to control the early appearance time and delayed disappearance time of each subtitle. The default delay is 0.3 seconds.  
+你可以 更改下面两个python变量 控制每一句字幕的提前出现时间和延后消失时间，默认延迟消失0.2秒  
+You can change the following two python variables to control the early appearance time and delayed disappearance time of each subtitle. The default delay is 0.2 seconds.  
 ```bash
     start_early_time = 0
-    end_late_time = 0.3
+    end_late_time = 0.2
 ```
 
 ## 百度翻译支持的语言 Baidu translate support language
