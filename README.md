@@ -1,4 +1,4 @@
-# 获取视频的双语字幕文件 get video srt file
+# 获取视频(音频)的双语字幕文件 get video(audio) srt file
 
 开发环境：  
 Pyhton 3.12  
@@ -25,6 +25,11 @@ So, I told you on the first day that this course is all about abstraction, and t
 ```
 
 ## 使用方法 usage
+
+使用mp3文件会跳过ffmpeg转换阶段  
+use mp3 file will ignore ffmpeg trnaform part  
+
+
 `python getVideoSrt.py xxx.mp4` 默认生成en-zh双语字幕  
 `python getVideoSrt.py xxx.mp4 en zh zh` 生成单中文字幕   
 `python getVideoSrt.py xxx.mp4 medium fra en fra-en`
@@ -43,6 +48,12 @@ positional arguments:
 
 options:
   -h, --help  show this help message and exit
+```
+你可以 更改下面两个python变量 控制每一句字幕的提前出现时间和延后消失时间，默认延迟消失0.3秒  
+You can change the following two python variables to control the early appearance time and delayed disappearance time of each subtitle. The default delay is 0.3 seconds.  
+```bash
+    start_early_time = 0
+    end_late_time = 0.3
 ```
 
 ## 百度翻译支持的语言 Baidu translate support language
